@@ -17,6 +17,9 @@ public class RainbowBreaker {
 
 class Breaker extends JFrame implements MouseMotionListener, KeyListener, ActionListener {
 
+    JLabel raqueta;
+    JLabel pelota;
+    
     JMenuBar menu;
     JMenu cosa;
     JMenuItem prueba1;
@@ -43,7 +46,7 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
                     brick.setLocation(10 + j * 150, 10 + i * 45);
                     brick.setSize(65, 35);
                 }
-                Color color=new Color((int)Math.round(Math.random()*255), (int)Math.round(Math.random()*255), (int)Math.round(Math.random()*255));
+                Color color=new Color((int)Math.round(Math.random()*100+100), (int)Math.round(Math.random()*100+100), (int)Math.round(Math.random()*100+100));
                 brick.setOpaque(true);
                 brick.setBackground(color);
                 //brick.setIcon(new ImageIcon("bricks.jpg"));
@@ -52,6 +55,24 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
             }
         }
         
+        //TODO darle fondo
+        raqueta=new JLabel();
+        raqueta.setSize(160, 20);
+        raqueta.setLocation(250, 410);
+        raqueta.setOpaque(true);
+        raqueta.setBackground(Color.black);
+        add(raqueta);
+        
+        
+        //TODO añadirle skins personalizables - pelota cuadrada
+        pelota=new JLabel();
+        pelota.setSize(40, 40);
+        pelota.setLocation(310, 350);
+        pelota.setOpaque(true);
+        pelota.setBackground(Color.black);
+        add(pelota);
+        
+        //TODO muchas cosas
         prueba1=new JMenuItem("prueba1");
         prueba2=new JMenuItem("prueba2");
         
