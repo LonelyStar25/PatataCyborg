@@ -19,12 +19,15 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
 
     JLabel raqueta;
     JLabel pelota;
-    
+    JLabel start;
+    Timer timer;
+    int angulox=1, anguloy=1; //ángulo de la pelota
+
     JMenuBar menu;
     JMenu cosa;
     JMenuItem prueba1;
     JMenuItem prueba2;
-    
+
     public Breaker() {
         super("RainbowBreaker");
         setLayout(null);
@@ -46,44 +49,67 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
                     brick.setLocation(10 + j * 150, 10 + i * 45);
                     brick.setSize(65, 35);
                 }
-                Color color=new Color((int)Math.round(Math.random()*100+100), (int)Math.round(Math.random()*100+100), (int)Math.round(Math.random()*100+100));
+                Color color = new Color((int) Math.round(Math.random() * 100 + 100), (int) Math.round(Math.random() * 100 + 100), (int) Math.round(Math.random() * 100 + 100));
                 brick.setOpaque(true);
                 brick.setBackground(color);
                 //brick.setIcon(new ImageIcon("bricks.jpg"));
-                brick.setToolTipText((j+i*5) + "");
+                brick.setToolTipText((j + i * 5) + "");
                 add(brick);
             }
         }
-        
+
         //TODO darle fondo
-        raqueta=new JLabel();
+        raqueta = new JLabel();
         raqueta.setSize(160, 20);
         raqueta.setLocation(250, 410);
         raqueta.setOpaque(true);
         raqueta.setBackground(Color.black);
         add(raqueta);
-        
-        
+
         //TODO añadirle skins personalizables - pelota cuadrada
-        pelota=new JLabel();
-        pelota.setSize(40, 40);
-        pelota.setLocation(310, 350);
+        pelota = new JLabel();
+        pelota.setSize(30, 30);
+        pelota.setLocation(315, 350);
         pelota.setOpaque(true);
         pelota.setBackground(Color.black);
         add(pelota);
         
+        start = new JLabel("[Pulsa espacio para jugar]");
+        start.setFont(new Font("Arial", Font.PLAIN, 22));
+        start.setSize(start.getPreferredSize());
+        start.setLocation(195, 280);
+        add(start);
+
         //TODO muchas cosas
-        prueba1=new JMenuItem("prueba1");
-        prueba2=new JMenuItem("prueba2");
-        
-        cosa=new JMenu("pruebaaa");
+        prueba1 = new JMenuItem("prueba1");
+        prueba2 = new JMenuItem("prueba2");
+
+        cosa = new JMenu("pruebaaa");
         cosa.add(prueba1);
         cosa.add(prueba2);
-        
-        menu=new JMenuBar();
+
+        menu = new JMenuBar();
         menu.add(cosa);
-        menu.setBackground(new Color((int)Math.round(Math.random()*55+200), (int)Math.round(Math.random()*55+200), (int)Math.round(Math.random()*55+200)));
+        menu.setBackground(new Color((int) Math.round(Math.random() * 55 + 200), (int) Math.round(Math.random() * 55 + 200), (int) Math.round(Math.random() * 55 + 200)));
         setJMenuBar(menu);
+        
+        timer=new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if((pelota.getY()+20>raqueta.getY()-10 && 
+                        pelota.getX()-30>raqueta.getX() && 
+                        pelota.getX()<raqueta.getX()+160) ||
+                        pelota.getY()+30<25){
+                    anguloy*=-1;
+                }
+                if(pelota.getX()+30>685 || pelota.getX()<0){
+                    angulox*=-1;
+                }
+                pelota.setLocation(pelota.getX()+4*angulox, pelota.getY()+4*anguloy);
+            }
+        });
+
+        addKeyListener(this);
     }
 
     @Override
@@ -108,7 +134,10 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
 
     @Override
     public void keyPressed(KeyEvent ke) {
-
+        if (ke.getKeyCode()==32) {
+            start.setVisible(false);
+            timer.start();
+        }
     }
 
     @Override
