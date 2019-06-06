@@ -21,7 +21,7 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
     JLabel pelota;
     JLabel start;
     Timer timer;
-    int angulox=1, anguloy=1; //ángulo de la pelota
+    int angulox = 1, anguloy = 1; //ángulo de la pelota
 
     JMenuBar menu;
     JMenu cosa;
@@ -73,7 +73,7 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
         pelota.setOpaque(true);
         pelota.setBackground(Color.black);
         add(pelota);
-        
+
         start = new JLabel("[Pulsa espacio para jugar]");
         start.setFont(new Font("Arial", Font.PLAIN, 22));
         start.setSize(start.getPreferredSize());
@@ -92,20 +92,20 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
         menu.add(cosa);
         menu.setBackground(new Color((int) Math.round(Math.random() * 55 + 200), (int) Math.round(Math.random() * 55 + 200), (int) Math.round(Math.random() * 55 + 200)));
         setJMenuBar(menu);
-        
-        timer=new Timer(100, new ActionListener() {
+
+        timer = new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if((pelota.getY()+20>raqueta.getY()-10 && 
-                        pelota.getX()-30>raqueta.getX() && 
-                        pelota.getX()<raqueta.getX()+160) ||
-                        pelota.getY()+30<25){
-                    anguloy*=-1;
+                if ((pelota.getY() + 20 > raqueta.getY() - 10
+                        && pelota.getX() - 30 > raqueta.getX()
+                        && pelota.getX() < raqueta.getX() + 160)
+                        || pelota.getY() + 30 < 25) {
+                    anguloy *= -1;
                 }
-                if(pelota.getX()+30>685 || pelota.getX()<0){
-                    angulox*=-1;
+                if (pelota.getX() + 30 > 685 || pelota.getX() < 0) {
+                    angulox *= -1;
                 }
-                pelota.setLocation(pelota.getX()+4*angulox, pelota.getY()+4*anguloy);
+                pelota.setLocation(pelota.getX() + 4 * angulox, pelota.getY() + 4 * anguloy);
             }
         });
 
@@ -134,7 +134,7 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
 
     @Override
     public void keyPressed(KeyEvent ke) {
-        if (ke.getKeyCode()==32) {
+        if (ke.getKeyCode() == 32) {
             start.setVisible(false);
             timer.start();
         }
