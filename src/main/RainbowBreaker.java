@@ -98,15 +98,15 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
         timer = new Timer(35, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                //TODO arreglar bug de la pelota en el lado izquierdo
 
                 if (pelota.getY() + 20 > raqueta.getY() - 10
-                        && pelota.getX() - 30 > raqueta.getX()
+                        && pelota.getX() > raqueta.getX()
                         && pelota.getX() < raqueta.getX() + 160) {
-                    if (pelota.getX() < raqueta.getX() + 45) {
-                        dirx = -Math.cos(((pelota.getX() - raqueta.getX() + 30) * Math.PI / 2) / 80);
-                    } else {
-                        dirx = -Math.sin(((pelota.getX() - raqueta.getX() + 80) * Math.PI / 2) / 80);
+                    dirx = -Math.sin(((pelota.getX() - raqueta.getX() + 80) * Math.PI / 2) / 80);
+                    if(dirx>0.7){
+                        dirx=0.7;
+                    }else if(dirx<-0.7){
+                        dirx=-0.7;
                     }
                     diry = (1 - Math.abs(dirx)) * -1;
                 }
@@ -126,15 +126,15 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
                         case 15:
                             if (pelota.getY() < brickArray[i].getY() + 35
                                     && pelota.getY() + 30 > brickArray[i].getY()
-                                    && pelota.getX() + 25 > brickArray[i].getX()
-                                    && pelota.getX() < brickArray[i].getX() + 60
+                                    && pelota.getX() + 20 > brickArray[i].getX()
+                                    && pelota.getX() < brickArray[i].getX() + 55
                                     && "1".equals(brickArray[i].getToolTipText())) {
                                 diry *= -1;
                                 brickArray[i].setVisible(false);
                                 brickArray[i].setToolTipText("0");
                             }
-                            if (pelota.getY() < brickArray[i].getY() + 30
-                                    && pelota.getY() + 25 > brickArray[i].getY()
+                            if (pelota.getY() < brickArray[i].getY() + 25
+                                    && pelota.getY() + 20 > brickArray[i].getY()
                                     && pelota.getX() + 30 > brickArray[i].getX()
                                     && pelota.getX() < brickArray[i].getX() + 65
                                     && "1".equals(brickArray[i].getToolTipText())) {
@@ -147,15 +147,15 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
                         default:
                             if (pelota.getY() < brickArray[i].getY() + 35
                                     && pelota.getY() + 30 > brickArray[i].getY()
-                                    && pelota.getX() + 25 > brickArray[i].getX()
-                                    && pelota.getX() < brickArray[i].getX() + 135
+                                    && pelota.getX() + 20 > brickArray[i].getX()
+                                    && pelota.getX() < brickArray[i].getX() + 130
                                     && "1".equals(brickArray[i].getToolTipText())) {
                                 diry *= -1;
                                 brickArray[i].setVisible(false);
                                 brickArray[i].setToolTipText("0");
                             }
-                            if (pelota.getY() < brickArray[i].getY() + 30
-                                    && pelota.getY() + 25 > brickArray[i].getY()
+                            if (pelota.getY() < brickArray[i].getY() + 25
+                                    && pelota.getY() + 20 > brickArray[i].getY()
                                     && pelota.getX() + 30 > brickArray[i].getX()
                                     && pelota.getX() < brickArray[i].getX() + 140
                                     && "1".equals(brickArray[i].getToolTipText())) {
