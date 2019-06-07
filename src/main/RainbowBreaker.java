@@ -22,7 +22,7 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
     JLabel start;
     Timer timer;
     JLabel[] brickArray = new JLabel[25];
-    int angulox = 1, anguloy = 1; //ángulo de la pelota
+    double dirx = Math.cos(Math.PI / 4), diry = Math.cos(Math.PI / 4); //ángulo de la pelota
 
     JMenuBar menu;
     JMenu cosa;
@@ -95,21 +95,28 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
         menu.setBackground(new Color((int) Math.round(Math.random() * 55 + 200), (int) Math.round(Math.random() * 55 + 200), (int) Math.round(Math.random() * 55 + 200)));
         setJMenuBar(menu);
 
-        timer = new Timer(50, new ActionListener() {
+        timer = new Timer(35, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                //TODO arreglar bug donde la pelota queda en medio de la raqueta atrapada
-                //TODO ángulo de la pelota al tocar la raqueta
-                if ((pelota.getY() + 20 > raqueta.getY() - 10
+                //TODO arreglar bug de la pelota en el lado izquierdo
+
+                if (pelota.getY() + 20 > raqueta.getY() - 10
                         && pelota.getX() - 30 > raqueta.getX()
-                        && pelota.getX() < raqueta.getX() + 160)
-                        || pelota.getY() + 30 < 25) {
-                    anguloy *= -1;
+                        && pelota.getX() < raqueta.getX() + 160) {
+                    if (pelota.getX() < raqueta.getX() + 45) {
+                        dirx = -Math.cos(((pelota.getX() - raqueta.getX() + 30) * Math.PI / 2) / 80);
+                    } else {
+                        dirx = -Math.sin(((pelota.getX() - raqueta.getX() + 80) * Math.PI / 2) / 80);
+                    }
+                    diry = (1 - Math.abs(dirx)) * -1;
+                }
+                if (pelota.getY() + 30 < 25) {
+                    diry *= -1;
                 }
                 if (pelota.getX() + 30 > 685 || pelota.getX() < 0) {
-                    angulox *= -1;
+                    dirx *= -1;
                 }
-                //TODO pruebas de esta parte
+
                 for (int i = 0; i < brickArray.length; i++) {
                     switch (i) {
                         case 4:
@@ -122,7 +129,7 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
                                     && pelota.getX() + 25 > brickArray[i].getX()
                                     && pelota.getX() < brickArray[i].getX() + 60
                                     && "1".equals(brickArray[i].getToolTipText())) {
-                                anguloy *= -1;
+                                diry *= -1;
                                 brickArray[i].setVisible(false);
                                 brickArray[i].setToolTipText("0");
                             }
@@ -131,7 +138,7 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
                                     && pelota.getX() + 30 > brickArray[i].getX()
                                     && pelota.getX() < brickArray[i].getX() + 65
                                     && "1".equals(brickArray[i].getToolTipText())) {
-                                angulox *= -1;
+                                dirx *= -1;
                                 brickArray[i].setVisible(false);
                                 brickArray[i].setToolTipText("0");
                             }
@@ -143,7 +150,7 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
                                     && pelota.getX() + 25 > brickArray[i].getX()
                                     && pelota.getX() < brickArray[i].getX() + 135
                                     && "1".equals(brickArray[i].getToolTipText())) {
-                                anguloy *= -1;
+                                diry *= -1;
                                 brickArray[i].setVisible(false);
                                 brickArray[i].setToolTipText("0");
                             }
@@ -152,13 +159,13 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
                                     && pelota.getX() + 30 > brickArray[i].getX()
                                     && pelota.getX() < brickArray[i].getX() + 140
                                     && "1".equals(brickArray[i].getToolTipText())) {
-                                angulox *= -1;
+                                dirx *= -1;
                                 brickArray[i].setVisible(false);
                                 brickArray[i].setToolTipText("0");
                             }
                     }
                 }
-                pelota.setLocation(pelota.getX() + 4 * angulox, pelota.getY() + 4 * anguloy);
+                pelota.setLocation((int) (pelota.getX() + 6 * dirx), (int) (pelota.getY() + 6 * diry));
             }
         });
 
