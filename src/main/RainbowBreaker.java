@@ -2,6 +2,7 @@ package main;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import javax.swing.*;
 
 public class RainbowBreaker {
@@ -22,9 +23,10 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
     JLabel infoLabel;
     Timer timer;
     JLabel[] brickArray = new JLabel[25];
-    int nivel = 1, velocidad = 8;
+    String path;
+    int nivel = 1, selectedIcon = 1;
     boolean gameOver = false, gameStarted = false;
-    double dirx = Math.cos(Math.PI / 4), diry = Math.cos(Math.PI / 4); //ángulo de la pelota
+    double dirx = 0.5, diry = 0.5;
 
     JMenuBar menu;
     JMenu personaliz;
@@ -32,10 +34,25 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
     JMenuItem instrucciones;
     JMenuItem controles;
     JMenuItem créditos;
+    JMenu cargarPartida;
+    JMenuItem cargar;
 
     public Breaker() {
         super("RainbowBreaker");
         setLayout(null);
+
+        //S E P A R A D O R  de código || aquí cargado de archivos al inicio
+        if ("Windows".equals(System.getProperty("os.name"))) {
+            path = "C:\\Users\\" + System.getProperty("user.name") + "\\RainbowBreakerData.txt";
+        } else if ("Linux".equals(System.getProperty("os.name"))) {
+            path = "/home/" + System.getProperty("user.name") + "/RainbowBreakerData.txt";
+        }
+        try (ObjectInputStream obj = new ObjectInputStream(new FileInputStream(path))) {
+            RainbowBreakerData data = (RainbowBreakerData) obj.readObject();
+            selectedIcon = data.selectedIcon;
+        } catch (IOException | ClassNotFoundException ex) {
+
+        }
 
         //S E P A R A D O R  de código || aquí elementos básicos
         for (int i = 0; i < 5; i++) {
@@ -75,7 +92,7 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
         pelota.setSize(30, 30);
         pelota.setLocation(315, 350);
         pelota.setOpaque(true);
-        ImageIcon imageIcon = new ImageIcon("gd1.png");
+        ImageIcon imageIcon = new ImageIcon("gd" + selectedIcon + ".png");
         Image image = imageIcon.getImage();
         Image newimg = image.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
         imageIcon = new ImageIcon(newimg);
@@ -97,6 +114,12 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
             personaliz.add(iconMenu);
         }
 
+        cargar = new JMenuItem("Cargar");
+        cargar.addActionListener(this);
+
+        cargarPartida = new JMenu("Cargar partida");
+        cargarPartida.add(cargar);
+
         instrucciones = new JMenuItem("Instrucciones");
         instrucciones.addActionListener(this);
 
@@ -113,6 +136,7 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
 
         menu = new JMenuBar();
         menu.add(personaliz);
+        menu.add(cargarPartida);
         menu.add(info);
         menu.setBackground(new Color((int) Math.round(Math.random() * 55 + 200), (int) Math.round(Math.random() * 55 + 200), (int) Math.round(Math.random() * 55 + 200)));
         setJMenuBar(menu);
@@ -198,18 +222,18 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
                                 }
                         }
                     }
-                    pelota.setLocation((int) (pelota.getX() + velocidad * dirx), (int) (pelota.getY() + velocidad * diry));
+                    pelota.setLocation((int) (pelota.getX() + (4 + nivel * 4) * dirx), (int) (pelota.getY() + (4 + nivel * 4) * diry));
 
                     if (stageClear) {
                         nivel++;
                         timer.stop();
+                        gameStarted = false;
                         pelota.setLocation(315, 350);
                         raqueta.setLocation(250, 410);
                         for (JLabel brick : brickArray) {
                             brick.setVisible(true);
                             brick.setToolTipText("1");
                         }
-                        velocidad += 4;
                         infoLabel.setText("Nivel " + nivel + ": pulsa espacio para comenzar");
                         infoLabel.setSize(infoLabel.getPreferredSize());
                         infoLabel.setLocation(135, 280);
@@ -226,6 +250,19 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
         });
 
         addKeyListener(this);
+
+        //S E P A R A D O R  de código || aquí guardado de archivos al cerrar
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we) {
+                try (ObjectOutputStream obj = new ObjectOutputStream(new FileOutputStream(path))) {
+                    RainbowBreakerData data = new RainbowBreakerData(nivel, selectedIcon);
+                    obj.writeObject(data);
+                } catch (IOException ex) {
+                    System.out.println("Error");
+                }
+            }
+        });
     }
 
     //S E P A R A D O R  de código || aquí eventos
@@ -241,14 +278,14 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
                 if (!gameStarted) {
                     infoLabel.setVisible(false);
                     timer.start();
-                    gameStarted=true;
+                    gameStarted = true;
                 } else {
                     infoLabel.setVisible(true);
                     infoLabel.setText("P A U S A");
                     infoLabel.setSize(infoLabel.getPreferredSize());
                     infoLabel.setLocation(280, 280);
                     timer.stop();
-                    gameStarted=false;
+                    gameStarted = false;
                 }
             }
             if (gameStarted) {
@@ -282,15 +319,37 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
                     JOptionPane.showMessageDialog(null, "Hecho por: Carmen Lonely Star\nEso es todo\n¿Qué te esperabas? :p", "Créditos", 1);
                     break;
                 case "Instrucciones":
-                    JOptionPane.showMessageDialog(null, "Rompe todos los bricks, pasa al siguiente nivel, no dejes que la pelota caiga\nGarantizamos la simpleza de un botijo", "Instrucciones", 1);
+                    JOptionPane.showMessageDialog(null, "Rompe todos los bricks, pasa al siguiente nivel, no dejes que la pelota caiga"
+                            + "\nGarantizamos la simpleza de un botijo"
+                            + "\nPD: el nivel en el que estás se guarda al cerrar el programa; puedes cargar tu partida anterior desde la opción de cargar", "Instrucciones", 1);
+                    break;
+                case "Cargar":
+                    try (ObjectInputStream obj = new ObjectInputStream(new FileInputStream(path))) {
+                        RainbowBreakerData data = (RainbowBreakerData) obj.readObject();
+                        nivel = data.nivel;
+                        JOptionPane.showMessageDialog(null, "Partida cargada con éxito :D", "Cargar partida", 1);
+                    } catch (IOException | ClassNotFoundException ex) {
+
+                    }
                     break;
                 default:
-                    ImageIcon imageIcon = new ImageIcon("gd" + src.getText().charAt(6) + ".png");
+                    selectedIcon = Integer.parseInt(src.getText().charAt(6) + "");
+                    ImageIcon imageIcon = new ImageIcon("gd" + selectedIcon + ".png");
                     Image image = imageIcon.getImage();
                     Image newimg = image.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
                     imageIcon = new ImageIcon(newimg);
                     pelota.setIcon(imageIcon);
             }
         }
+    }
+}
+
+class RainbowBreakerData implements Serializable {
+
+    int nivel, selectedIcon;
+
+    public RainbowBreakerData(int nivel, int selectedIcon) {
+        this.nivel = nivel;
+        this.selectedIcon = selectedIcon;
     }
 }
