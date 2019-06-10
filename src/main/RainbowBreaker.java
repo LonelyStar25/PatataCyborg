@@ -5,7 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class RainbowBreaker {
-    
+
     public static void main(String args[]) {
         Breaker aplicacion = new Breaker();
         aplicacion.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 3, Toolkit.getDefaultToolkit().getScreenSize().height / 4);
@@ -16,19 +16,23 @@ public class RainbowBreaker {
 }
 
 class Breaker extends JFrame implements KeyListener, ActionListener {
-    
+
     JLabel raqueta;
     JLabel pelota;
     JLabel infoLabel;
     Timer timer;
     JLabel[] brickArray = new JLabel[25];
     int nivel = 1, velocidad = 8;
-    boolean gameOver = false;
+    boolean gameOver = false, gameStarted = false;
     double dirx = Math.cos(Math.PI / 4), diry = Math.cos(Math.PI / 4); //ángulo de la pelota
 
     JMenuBar menu;
     JMenu personaliz;
-    
+    JMenu info;
+    JMenuItem instrucciones;
+    JMenuItem controles;
+    JMenuItem créditos;
+
     public Breaker() {
         super("RainbowBreaker");
         setLayout(null);
@@ -59,14 +63,14 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
                 brickArray[j + i * 5] = brick;
             }
         }
-        
+
         raqueta = new JLabel();
         raqueta.setSize(160, 20);
         raqueta.setLocation(250, 410);
         raqueta.setOpaque(true);
         raqueta.setBackground(new Color((int) Math.round(Math.random() * 100 + 50), (int) Math.round(Math.random() * 100 + 50), (int) Math.round(Math.random() * 100 + 50)));
         add(raqueta);
-        
+
         pelota = new JLabel();
         pelota.setSize(30, 30);
         pelota.setLocation(315, 350);
@@ -77,7 +81,7 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
         imageIcon = new ImageIcon(newimg);
         pelota.setIcon(imageIcon);
         add(pelota);
-        
+
         infoLabel = new JLabel("[Pulsa espacio para jugar]");
         infoLabel.setFont(new Font("Arial", Font.PLAIN, 22));
         infoLabel.setSize(infoLabel.getPreferredSize());
@@ -92,9 +96,24 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
             iconMenu.addActionListener(this);
             personaliz.add(iconMenu);
         }
-        
+
+        instrucciones = new JMenuItem("Instrucciones");
+        instrucciones.addActionListener(this);
+
+        controles = new JMenuItem("Controles");
+        controles.addActionListener(this);
+
+        créditos = new JMenuItem("Créditos");
+        créditos.addActionListener(this);
+
+        info = new JMenu("Info");
+        info.add(instrucciones);
+        info.add(controles);
+        info.add(créditos);
+
         menu = new JMenuBar();
         menu.add(personaliz);
+        menu.add(info);
         menu.setBackground(new Color((int) Math.round(Math.random() * 55 + 200), (int) Math.round(Math.random() * 55 + 200), (int) Math.round(Math.random() * 55 + 200)));
         setJMenuBar(menu);
 
@@ -102,11 +121,11 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
         timer = new Timer(35, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                
+
                 if (pelota.getY() > 480) {
                     gameOver = true;
                 }
-                
+
                 if (!gameOver) {
                     if (pelota.getY() + 20 > raqueta.getY() - 10
                             && pelota.getX() > raqueta.getX()
@@ -125,13 +144,13 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
                     if (pelota.getX() + 30 > 685 || pelota.getX() < 0) {
                         dirx *= -1;
                     }
-                    
+
                     boolean stageClear = true;
                     for (int i = 0; i < brickArray.length; i++) {
                         if ("1".equals(brickArray[i].getToolTipText())) {
                             stageClear = false;
                         }
-                        
+
                         switch (i) {
                             case 4:
                             case 14:
@@ -157,7 +176,7 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
                                     brickArray[i].setToolTipText("0");
                                 }
                                 break;
-                            
+
                             default:
                                 if (pelota.getY() < brickArray[i].getY() + 35
                                         && pelota.getY() + 30 > brickArray[i].getY()
@@ -180,7 +199,7 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
                         }
                     }
                     pelota.setLocation((int) (pelota.getX() + velocidad * dirx), (int) (pelota.getY() + velocidad * diry));
-                    
+
                     if (stageClear) {
                         nivel++;
                         timer.stop();
@@ -205,48 +224,73 @@ class Breaker extends JFrame implements KeyListener, ActionListener {
                 }
             }
         });
-        
+
         addKeyListener(this);
     }
 
     //S E P A R A D O R  de código || aquí eventos
     @Override
     public void keyTyped(KeyEvent ke) {
-        
+
     }
-    
+
     @Override
     public void keyPressed(KeyEvent ke) {
         if (!gameOver) {
             if (ke.getKeyCode() == KeyEvent.VK_SPACE) {
-                infoLabel.setVisible(false);
-                timer.start();
+                if (!gameStarted) {
+                    infoLabel.setVisible(false);
+                    timer.start();
+                    gameStarted=true;
+                } else {
+                    infoLabel.setVisible(true);
+                    infoLabel.setText("P A U S A");
+                    infoLabel.setSize(infoLabel.getPreferredSize());
+                    infoLabel.setLocation(280, 280);
+                    timer.stop();
+                    gameStarted=false;
+                }
             }
-            if ((ke.getKeyCode() == KeyEvent.VK_RIGHT || ke.getKeyCode() == KeyEvent.VK_D)
-                    && raqueta.getX() < 685 - 160 - 10) {
-                raqueta.setLocation(raqueta.getX() + 10, raqueta.getY());
-            }
-            if ((ke.getKeyCode() == KeyEvent.VK_LEFT || ke.getKeyCode() == KeyEvent.VK_A)
-                    && raqueta.getX() > 10) {
-                raqueta.setLocation(raqueta.getX() - 10, raqueta.getY());
+            if (gameStarted) {
+                if ((ke.getKeyCode() == KeyEvent.VK_RIGHT || ke.getKeyCode() == KeyEvent.VK_D)
+                        && raqueta.getX() < 685 - 160 - 10) {
+                    raqueta.setLocation(raqueta.getX() + 10, raqueta.getY());
+                }
+                if ((ke.getKeyCode() == KeyEvent.VK_LEFT || ke.getKeyCode() == KeyEvent.VK_A)
+                        && raqueta.getX() > 10) {
+                    raqueta.setLocation(raqueta.getX() - 10, raqueta.getY());
+                }
             }
         }
     }
-    
+
     @Override
     public void keyReleased(KeyEvent ke) {
-        
+
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent ae) {
         JMenuItem src = (JMenuItem) ae.getSource();
-        if (src.getText().charAt(0) == 'I') {
-            ImageIcon imageIcon = new ImageIcon("gd" + src.getText().charAt(6) + ".png");
-            Image image = imageIcon.getImage();
-            Image newimg = image.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
-            imageIcon = new ImageIcon(newimg);
-            pelota.setIcon(imageIcon);
+
+        if (null != src.getText()) {
+            switch (src.getText()) {
+                case "Controles":
+                    JOptionPane.showMessageDialog(null, "Teclas de flecha o A, D: mover la raqueta\nEspacio: inicio y pausa", "Controles", 1);
+                    break;
+                case "Créditos":
+                    JOptionPane.showMessageDialog(null, "Hecho por: Carmen Lonely Star\nEso es todo\n¿Qué te esperabas? :p", "Créditos", 1);
+                    break;
+                case "Instrucciones":
+                    JOptionPane.showMessageDialog(null, "Rompe todos los bricks, pasa al siguiente nivel, no dejes que la pelota caiga\nGarantizamos la simpleza de un botijo", "Instrucciones", 1);
+                    break;
+                default:
+                    ImageIcon imageIcon = new ImageIcon("gd" + src.getText().charAt(6) + ".png");
+                    Image image = imageIcon.getImage();
+                    Image newimg = image.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
+                    imageIcon = new ImageIcon(newimg);
+                    pelota.setIcon(imageIcon);
+            }
         }
     }
 }
