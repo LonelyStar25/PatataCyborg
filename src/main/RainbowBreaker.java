@@ -19,9 +19,11 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
 
     JLabel raqueta;
     JLabel pelota;
-    JLabel start;
+    JLabel infoLabel;
     Timer timer;
     JLabel[] brickArray = new JLabel[25];
+    int nivel=1, velocidad=8;
+    boolean gameOver=false;
     double dirx = Math.cos(Math.PI / 4), diry = Math.cos(Math.PI / 4); //ángulo de la pelota
 
     JMenuBar menu;
@@ -76,11 +78,11 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
         pelota.setBackground(Color.black);
         add(pelota);
 
-        start = new JLabel("[Pulsa espacio para jugar]");
-        start.setFont(new Font("Arial", Font.PLAIN, 22));
-        start.setSize(start.getPreferredSize());
-        start.setLocation(195, 280);
-        add(start);
+        infoLabel = new JLabel("[Pulsa espacio para jugar]");
+        infoLabel.setFont(new Font("Arial", Font.PLAIN, 22));
+        infoLabel.setSize(infoLabel.getPreferredSize());
+        infoLabel.setLocation(190, 280);
+        add(infoLabel);
 
         //TODO muchas cosas
         prueba1 = new JMenuItem("prueba1");
@@ -98,74 +100,107 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
         timer = new Timer(35, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
+                
+                if(pelota.getY()>480){
+                    gameOver=true;
+                }
 
-                if (pelota.getY() + 20 > raqueta.getY() - 10
-                        && pelota.getX() > raqueta.getX()
-                        && pelota.getX() < raqueta.getX() + 160) {
-                    dirx = -Math.sin(((pelota.getX() - raqueta.getX() + 80) * Math.PI / 2) / 80);
-                    if(dirx>0.7){
-                        dirx=0.7;
-                    }else if(dirx<-0.7){
-                        dirx=-0.7;
+                if (!gameOver) {
+                    if (pelota.getY() + 20 > raqueta.getY() - 10
+                            && pelota.getX() > raqueta.getX()
+                            && pelota.getX() < raqueta.getX() + 160) {
+                        dirx = -Math.sin(((pelota.getX() - raqueta.getX() + 80) * Math.PI / 2) / 80);
+                        if (dirx > 0.7) {
+                            dirx = 0.7;
+                        } else if (dirx < -0.7) {
+                            dirx = -0.7;
+                        }
+                        diry = (1 - Math.abs(dirx)) * -1;
                     }
-                    diry = (1 - Math.abs(dirx)) * -1;
-                }
-                if (pelota.getY() + 30 < 25) {
-                    diry *= -1;
-                }
-                if (pelota.getX() + 30 > 685 || pelota.getX() < 0) {
-                    dirx *= -1;
-                }
-
-                for (int i = 0; i < brickArray.length; i++) {
-                    switch (i) {
-                        case 4:
-                        case 14:
-                        case 24:
-                        case 5:
-                        case 15:
-                            if (pelota.getY() < brickArray[i].getY() + 35
-                                    && pelota.getY() + 30 > brickArray[i].getY()
-                                    && pelota.getX() + 20 > brickArray[i].getX()
-                                    && pelota.getX() < brickArray[i].getX() + 55
-                                    && "1".equals(brickArray[i].getToolTipText())) {
-                                diry *= -1;
-                                brickArray[i].setVisible(false);
-                                brickArray[i].setToolTipText("0");
-                            }
-                            if (pelota.getY() < brickArray[i].getY() + 25
-                                    && pelota.getY() + 20 > brickArray[i].getY()
-                                    && pelota.getX() + 30 > brickArray[i].getX()
-                                    && pelota.getX() < brickArray[i].getX() + 65
-                                    && "1".equals(brickArray[i].getToolTipText())) {
-                                dirx *= -1;
-                                brickArray[i].setVisible(false);
-                                brickArray[i].setToolTipText("0");
-                            }
-                            break;
-
-                        default:
-                            if (pelota.getY() < brickArray[i].getY() + 35
-                                    && pelota.getY() + 30 > brickArray[i].getY()
-                                    && pelota.getX() + 20 > brickArray[i].getX()
-                                    && pelota.getX() < brickArray[i].getX() + 130
-                                    && "1".equals(brickArray[i].getToolTipText())) {
-                                diry *= -1;
-                                brickArray[i].setVisible(false);
-                                brickArray[i].setToolTipText("0");
-                            }
-                            if (pelota.getY() < brickArray[i].getY() + 25
-                                    && pelota.getY() + 20 > brickArray[i].getY()
-                                    && pelota.getX() + 30 > brickArray[i].getX()
-                                    && pelota.getX() < brickArray[i].getX() + 140
-                                    && "1".equals(brickArray[i].getToolTipText())) {
-                                dirx *= -1;
-                                brickArray[i].setVisible(false);
-                                brickArray[i].setToolTipText("0");
-                            }
+                    if (pelota.getY() + 30 < 25) {
+                        diry *= -1;
                     }
+                    if (pelota.getX() + 30 > 685 || pelota.getX() < 0) {
+                        dirx *= -1;
+                    }
+                    
+                    boolean stageClear = true;
+                    for (int i = 0; i < brickArray.length; i++) {
+                        if ("1".equals(brickArray[i].getToolTipText())) {
+                            stageClear = false;
+                        }
+                        
+                        switch (i) {
+                            case 4:
+                            case 14:
+                            case 24:
+                            case 5:
+                            case 15:
+                                if (pelota.getY() < brickArray[i].getY() + 35
+                                        && pelota.getY() + 30 > brickArray[i].getY()
+                                        && pelota.getX() + 20 > brickArray[i].getX()
+                                        && pelota.getX() < brickArray[i].getX() + 55
+                                        && "1".equals(brickArray[i].getToolTipText())) {
+                                    diry *= -1;
+                                    brickArray[i].setVisible(false);
+                                    brickArray[i].setToolTipText("0");
+                                }
+                                if (pelota.getY() < brickArray[i].getY() + 25
+                                        && pelota.getY() + 20 > brickArray[i].getY()
+                                        && pelota.getX() + 30 > brickArray[i].getX()
+                                        && pelota.getX() < brickArray[i].getX() + 65
+                                        && "1".equals(brickArray[i].getToolTipText())) {
+                                    dirx *= -1;
+                                    brickArray[i].setVisible(false);
+                                    brickArray[i].setToolTipText("0");
+                                }
+                                break;
+                            
+                            default:
+                                if (pelota.getY() < brickArray[i].getY() + 35
+                                        && pelota.getY() + 30 > brickArray[i].getY()
+                                        && pelota.getX() + 20 > brickArray[i].getX()
+                                        && pelota.getX() < brickArray[i].getX() + 130
+                                        && "1".equals(brickArray[i].getToolTipText())) {
+                                    diry *= -1;
+                                    brickArray[i].setVisible(false);
+                                    brickArray[i].setToolTipText("0");
+                                }
+                                if (pelota.getY() < brickArray[i].getY() + 25
+                                        && pelota.getY() + 20 > brickArray[i].getY()
+                                        && pelota.getX() + 30 > brickArray[i].getX()
+                                        && pelota.getX() < brickArray[i].getX() + 140
+                                        && "1".equals(brickArray[i].getToolTipText())) {
+                                    dirx *= -1;
+                                    brickArray[i].setVisible(false);
+                                    brickArray[i].setToolTipText("0");
+                                }
+                        }
+                    }
+                    pelota.setLocation((int) (pelota.getX() + velocidad * dirx), (int) (pelota.getY() + velocidad * diry));
+                    
+                    if (stageClear) {
+                        nivel++;
+                        timer.stop();
+                        pelota.setLocation(315, 350);
+                        raqueta.setLocation(250, 410);
+                        for (JLabel brick : brickArray) {
+                            brick.setVisible(true);
+                            brick.setToolTipText("1");
+                        }
+                        velocidad += 4;
+                        infoLabel.setText("Nivel " + nivel + ": pulsa espacio para comenzar");
+                        infoLabel.setSize(infoLabel.getPreferredSize());
+                        infoLabel.setLocation(135, 280);
+                        infoLabel.setVisible(true);
+                    }
+                } else{
+                    timer.stop();
+                    infoLabel.setText("G A M E  O V E R");
+                    infoLabel.setSize(infoLabel.getPreferredSize());
+                    infoLabel.setLocation(240, 280);
+                    infoLabel.setVisible(true);
                 }
-                pelota.setLocation((int) (pelota.getX() + 6 * dirx), (int) (pelota.getY() + 6 * diry));
             }
         });
 
@@ -194,17 +229,19 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
 
     @Override
     public void keyPressed(KeyEvent ke) {
-        if (ke.getKeyCode() == KeyEvent.VK_SPACE) {
-            start.setVisible(false);
-            timer.start();
-        }
-        if ((ke.getKeyCode() == KeyEvent.VK_RIGHT || ke.getKeyCode() == KeyEvent.VK_D)
-                && raqueta.getX() < 685 - 160 - 10) {
-            raqueta.setLocation(raqueta.getX() + 10, raqueta.getY());
-        }
-        if ((ke.getKeyCode() == KeyEvent.VK_LEFT || ke.getKeyCode() == KeyEvent.VK_A)
-                && raqueta.getX() > 10) {
-            raqueta.setLocation(raqueta.getX() - 10, raqueta.getY());
+        if (!gameOver) {
+            if (ke.getKeyCode() == KeyEvent.VK_SPACE) {
+                infoLabel.setVisible(false);
+                timer.start();
+            }
+            if ((ke.getKeyCode() == KeyEvent.VK_RIGHT || ke.getKeyCode() == KeyEvent.VK_D)
+                    && raqueta.getX() < 685 - 160 - 10) {
+                raqueta.setLocation(raqueta.getX() + 10, raqueta.getY());
+            }
+            if ((ke.getKeyCode() == KeyEvent.VK_LEFT || ke.getKeyCode() == KeyEvent.VK_A)
+                    && raqueta.getX() > 10) {
+                raqueta.setLocation(raqueta.getX() - 10, raqueta.getY());
+            }
         }
     }
 
