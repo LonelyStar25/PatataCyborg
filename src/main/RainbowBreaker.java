@@ -5,7 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class RainbowBreaker {
-
+    
     public static void main(String args[]) {
         Breaker aplicacion = new Breaker();
         aplicacion.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 3, Toolkit.getDefaultToolkit().getScreenSize().height / 4);
@@ -15,26 +15,25 @@ public class RainbowBreaker {
     }
 }
 
-class Breaker extends JFrame implements MouseMotionListener, KeyListener, ActionListener {
-
+class Breaker extends JFrame implements KeyListener, ActionListener {
+    
     JLabel raqueta;
     JLabel pelota;
     JLabel infoLabel;
     Timer timer;
     JLabel[] brickArray = new JLabel[25];
-    int nivel=1, velocidad=8;
-    boolean gameOver=false;
+    int nivel = 1, velocidad = 8;
+    boolean gameOver = false;
     double dirx = Math.cos(Math.PI / 4), diry = Math.cos(Math.PI / 4); //ángulo de la pelota
 
     JMenuBar menu;
-    JMenu cosa;
-    JMenuItem prueba1;
-    JMenuItem prueba2;
-
+    JMenu personaliz;
+    
     public Breaker() {
         super("RainbowBreaker");
         setLayout(null);
 
+        //S E P A R A D O R  de código || aquí elementos básicos
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
                 JLabel brick;
@@ -55,56 +54,59 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
                 Color color = new Color((int) Math.round(Math.random() * 100 + 100), (int) Math.round(Math.random() * 100 + 100), (int) Math.round(Math.random() * 100 + 100));
                 brick.setOpaque(true);
                 brick.setBackground(color);
-                //brick.setIcon(new ImageIcon("bricks.jpg"));
                 brick.setToolTipText("1");
                 add(brick);
                 brickArray[j + i * 5] = brick;
             }
         }
-
-        //TODO darle fondo
+        
         raqueta = new JLabel();
         raqueta.setSize(160, 20);
         raqueta.setLocation(250, 410);
         raqueta.setOpaque(true);
-        raqueta.setBackground(Color.black);
+        raqueta.setBackground(new Color((int) Math.round(Math.random() * 100 + 50), (int) Math.round(Math.random() * 100 + 50), (int) Math.round(Math.random() * 100 + 50)));
         add(raqueta);
-
-        //TODO añadirle skins personalizables - pelota cuadrada
+        
         pelota = new JLabel();
         pelota.setSize(30, 30);
         pelota.setLocation(315, 350);
         pelota.setOpaque(true);
-        pelota.setBackground(Color.black);
+        ImageIcon imageIcon = new ImageIcon("gd1.png");
+        Image image = imageIcon.getImage();
+        Image newimg = image.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
+        imageIcon = new ImageIcon(newimg);
+        pelota.setIcon(imageIcon);
         add(pelota);
-
+        
         infoLabel = new JLabel("[Pulsa espacio para jugar]");
         infoLabel.setFont(new Font("Arial", Font.PLAIN, 22));
         infoLabel.setSize(infoLabel.getPreferredSize());
         infoLabel.setLocation(190, 280);
         add(infoLabel);
 
-        //TODO muchas cosas
-        prueba1 = new JMenuItem("prueba1");
-        prueba2 = new JMenuItem("prueba2");
-
-        cosa = new JMenu("pruebaaa");
-        cosa.add(prueba1);
-        cosa.add(prueba2);
-
+        //S E P A R A D O R  de código || aquí menús
+        personaliz = new JMenu("Icono de la pelota");
+        JMenuItem iconMenu = null;
+        for (int i = 0; i < 7; i++) {
+            iconMenu = new JMenuItem("Icono " + (i + 1));
+            iconMenu.addActionListener(this);
+            personaliz.add(iconMenu);
+        }
+        
         menu = new JMenuBar();
-        menu.add(cosa);
+        menu.add(personaliz);
         menu.setBackground(new Color((int) Math.round(Math.random() * 55 + 200), (int) Math.round(Math.random() * 55 + 200), (int) Math.round(Math.random() * 55 + 200)));
         setJMenuBar(menu);
 
+        //S E P A R A D O R  de código || aquí timer
         timer = new Timer(35, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 
-                if(pelota.getY()>480){
-                    gameOver=true;
+                if (pelota.getY() > 480) {
+                    gameOver = true;
                 }
-
+                
                 if (!gameOver) {
                     if (pelota.getY() + 20 > raqueta.getY() - 10
                             && pelota.getX() > raqueta.getX()
@@ -194,7 +196,7 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
                         infoLabel.setLocation(135, 280);
                         infoLabel.setVisible(true);
                     }
-                } else{
+                } else {
                     timer.stop();
                     infoLabel.setText("G A M E  O V E R");
                     infoLabel.setSize(infoLabel.getPreferredSize());
@@ -203,30 +205,16 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
                 }
             }
         });
-
+        
         addKeyListener(this);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent ae) {
-
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent me) {
-
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent me) {
-
-    }
-
+    //S E P A R A D O R  de código || aquí eventos
     @Override
     public void keyTyped(KeyEvent ke) {
-
+        
     }
-
+    
     @Override
     public void keyPressed(KeyEvent ke) {
         if (!gameOver) {
@@ -244,9 +232,21 @@ class Breaker extends JFrame implements MouseMotionListener, KeyListener, Action
             }
         }
     }
-
+    
     @Override
     public void keyReleased(KeyEvent ke) {
-
+        
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        JMenuItem src = (JMenuItem) ae.getSource();
+        if (src.getText().charAt(0) == 'I') {
+            ImageIcon imageIcon = new ImageIcon("gd" + src.getText().charAt(6) + ".png");
+            Image image = imageIcon.getImage();
+            Image newimg = image.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
+            imageIcon = new ImageIcon(newimg);
+            pelota.setIcon(imageIcon);
+        }
     }
 }
